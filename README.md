@@ -10,6 +10,8 @@ All settings are done through Environment Variables.
 
 ![User Api](./local/images/userapi.png)
 
+<br/>
+
 ## Requirements
 
 >  [Go 1.18](https://go.dev/doc/install)   
@@ -93,6 +95,7 @@ $ make test
 ```
 
 <br/>
+
 ## Technical Debts
 <br/>
 
