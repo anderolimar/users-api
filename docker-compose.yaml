@@ -4,7 +4,7 @@ services:
     image: mongo:5.0
     container_name: mongo
     environment:
-        - MONGO_INITDB_DATABASE=userapi
+        - MONGO_INITDB_DATABASE=usersapi
         - MONGO_INITDB_ROOT_USERNAME=root
         - MONGO_INITDB_ROOT_PASSWORD=password
     restart: unless-stopped
@@ -29,3 +29,14 @@ services:
     restart: unless-stopped
     ports:
       - "8081:8081"
+  api:
+    build: .
+    image: userapi    
+    container_name: userapi
+    environment: 
+      - MONGODB_URI=mongodb://root:password@mongo:27017/?authSource=admin
+      - MONGODB_DATABASE=usersapi
+    links:
+      - mongo
+    ports:
+      - "3000:3000"  

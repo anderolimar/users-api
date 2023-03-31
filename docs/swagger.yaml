@@ -1,0 +1,191 @@
+basePath: /api/v1
+definitions:
+  users.Address:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      number:
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+      zip:
+        type: string
+    type: object
+  users.User:
+    properties:
+      address:
+        $ref: '#/definitions/users.Address'
+      age:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  users.UserID:
+    properties:
+      id:
+        type: string
+    type: object
+  users.UserResponse:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact:
+    name: Anderson
+  description: This is a User REST API to perform CRUD operations in MongoDB.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: User API
+  version: "1.0"
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new user from user data in request body.
+      parameters:
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/users.UserID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+        "401":
+          description: Unauthorized
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+      summary: Create new user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This endpoint delete a user by user id.
+      parameters:
+      - description: userID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+        "401":
+          description: Unauthorized
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+      summary: Delete user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: This endpoint returns a user by user id.
+      parameters:
+      - description: userID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/users.UserID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+        "401":
+          description: Unauthorized
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+      summary: Return user data
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: This endpoint updates a user from user data in request body.
+      parameters:
+      - description: userID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+        "401":
+          description: Unauthorized
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/users.UserResponse'
+      summary: Update user
+      tags:
+      - users
+schemes:
+- http
+- https
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

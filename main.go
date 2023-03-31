@@ -1,3 +1,4 @@
+// User REST API to perform CRUD operations in MongoDB
 package main
 
 import (
@@ -12,9 +13,25 @@ import (
 	"userapi/server"
 )
 
+//	@title			User API
+//	@version		1.0
+//	@description	This is a User REST API to perform CRUD operations in MongoDB.
+
+//	@contact.name	Anderson
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+
+//	@host		localhost:3000
+//	@BasePath	/api/v1
+//	@schemes	http https
+
+// @securityDefinitions.basic	BasicAuth
 func main() {
 	c := config.NewConfig()
 	s := server.NewServer(c)
+
+	c.Validate()
 
 	go func() {
 		if err := s.Run(); err != nil {

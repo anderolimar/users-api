@@ -5,13 +5,9 @@ type UserResponse struct {
 	Code    string `json:"code"`
 }
 
-type UserListResponse struct {
-	Users []User `json:"users"`
-}
-
-var INVALID_USER UserResponse = UserResponse{
-	Message: "Invalid User",
-	Code:    "INVALID_USER",
+var INVALID_USER_DATA UserResponse = UserResponse{
+	Message: "Invalid User Data",
+	Code:    "INVALID_USER_DATA",
 }
 
 var INVALID_USER_ID UserResponse = UserResponse{
@@ -29,9 +25,19 @@ var USER_CREATED UserResponse = UserResponse{
 	Code:    "USER_CREATED",
 }
 
+var USER_ALREADY_EXISTS UserResponse = UserResponse{
+	Message: "User Already Exists",
+	Code:    "USER_ALREADY_EXISTS",
+}
+
 var USER_CREATE_FAILED UserResponse = UserResponse{
 	Message: "User Create Failed",
 	Code:    "USER_CREATE_FAILED",
+}
+
+var USER_FIND_FAILED UserResponse = UserResponse{
+	Message: "User Find Failed",
+	Code:    "USER_FIND_FAILED",
 }
 
 var USER_UPDATED UserResponse = UserResponse{
