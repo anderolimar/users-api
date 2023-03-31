@@ -11,6 +11,7 @@ mock:
 	mockgen -source ./users/repository.go -destination ./users/mock_repository.go -package users
 	mockgen -source ./users/service.go -destination ./users/mock_service.go -package users
 envup: 
+	docker-compose build
 	docker-compose up -d
 
 envdown: 

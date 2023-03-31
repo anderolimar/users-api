@@ -34,6 +34,7 @@ RATE_LIMIT_TOKENS |  Rate limit tokens value             |   5           |
 API_USER          |  Api Basic auth user                 |   apiuser     | 
 API_PASS          |  Api Basic auth password             |   apipass     | 
 
+<br/>
 
 ## Generate API swagger documentation
 <br/>
@@ -57,6 +58,7 @@ Execute the command below :
 ```
 $ make envup
 ```
+<br/>
 
 ## Finishing API Local
 <br/>
@@ -69,6 +71,7 @@ Execute the command below :
 ```
 $ make envdown
 ```
+<br/>
 
 ## API Documentation URL
 <br/>
@@ -77,6 +80,8 @@ Access the URL below :
 
 [http://localhost:3000/doc/index.html](http://localhost:3000/doc/index.html)
 
+
+<br/>
 
 ## Running Tests
 <br/>
@@ -87,6 +92,7 @@ Execute the command below :
 $ make test
 ```
 
+<br/>
 ## Technical Debts
 <br/>
 

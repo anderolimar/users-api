@@ -15,17 +15,20 @@ type Config struct {
 	RateLimitTokens int
 	ApiUser         string
 	ApiPass         string
+	ApiHost         string
 }
 
 func NewConfig() Config {
+	var port int = getIntValue("PORT", 3000)
 	return Config{
-		Port:            getIntValue("PORT", 3000),
+		Port:            port,
 		DBURI:           os.Getenv("MONGODB_URI"),
 		Database:        os.Getenv("MONGODB_DATABASE"),
 		RateLimit:       getIntValue(os.Getenv("RATE_LIMIT"), 1),
 		RateLimitTokens: getIntValue(os.Getenv("RATE_LIMIT_TOKENS"), 5),
 		ApiUser:         getStringValue("API_USER", "apiuser"),
 		ApiPass:         getStringValue("API_PASS", "apipass"),
+		ApiHost:         getStringValue("API_HOST", fmt.Sprintf("localhost:%d", port)),
 	}
 }
 

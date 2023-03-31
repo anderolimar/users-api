@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 	"userapi/config"
+	"userapi/docs"
 	"userapi/server"
 )
 
@@ -19,7 +20,6 @@ import (
 
 //	@contact.name	Anderson
 
-//	@host		localhost:3000
 //	@BasePath	/api/v1
 //	@schemes	http https
 
@@ -27,6 +27,8 @@ import (
 func main() {
 	c := config.NewConfig()
 	s := server.NewServer(c)
+
+	docs.SwaggerInfo.Host = c.ApiHost
 
 	c.Validate()
 
