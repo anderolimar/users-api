@@ -37,9 +37,12 @@ func (repo *userRepository) InsertUser(user User) (string, error) {
 	user.ID = ""
 	coll := repo.client.Database(repo.database).Collection(userCollection)
 	result, err := coll.InsertOne(context.Background(), user)
+	if err != nil {
+		return "", err
+	}
 	var objID primitive.ObjectID = result.InsertedID.(primitive.ObjectID)
 
-	return objID.Hex(), err
+	return objID.Hex(), nil
 }
 
 func (repo *userRepository) FindUserByID(ID string, projection Projection) (*User, error) {
@@ -101,7 +104,7 @@ func (repo *userRepository) DeleteUser(userID string) error {
 	coll := repo.client.Database(repo.database).Collection(userCollection)
 	objID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return err
+		return fmt.Errorf(INVALID_OBJECT_ID)
 	}
 
 	filter := bson.M{"_id": bson.M{"$eq": objID}}

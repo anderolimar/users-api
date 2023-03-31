@@ -32,6 +32,13 @@ type UserService interface {
 		user: User data to update user.
 	*/
 	UpdateUser(userID string, user User) error
+	/*
+		Method to delete user
+
+		Parameters
+
+		userID: User ID to find user data.
+	*/
 	DeleteUser(userID string) error
 }
 
@@ -77,6 +84,10 @@ func (svc *userService) CreateUser(user User) (string, error) {
 	user.Password = svc.hashPassword(user.Password)
 
 	insertID, err := svc.repo.InsertUser(user)
+	if existingUser != nil {
+		fmt.Println(fmt.Errorf("User already exists"))
+		return "", &userServiceError{code: CREATE_USER_FAILED}
+	}
 	return insertID, nil
 }
 
@@ -114,6 +125,10 @@ func (svc *userService) UpdateUser(userID string, user User) error {
 
 func (svc *userService) DeleteUser(userID string) error {
 	if err := svc.repo.DeleteUser(userID); err != nil {
+		if err.Error() == INVALID_OBJECT_ID {
+			fmt.Println(fmt.Errorf("Invalid user id : %v", err))
+			return &userServiceError{code: USER_ID_INVALID}
+		}
 		fmt.Println(fmt.Errorf("Error on DeleteUser : %v", err))
 		return &userServiceError{code: DELETE_USER_FAILED}
 	}

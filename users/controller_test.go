@@ -18,7 +18,7 @@ func TestCreateUser(t *testing.T) {
 	tests := []struct {
 		name             string
 		setupMock        func(service *MockUserService)
-		input            string
+		inputBody        string
 		expectedResponse string
 		expectedStatus   int
 	}{
@@ -30,7 +30,7 @@ func TestCreateUser(t *testing.T) {
 					CreateUser(gomock.Any()).
 					Return(userID, nil)
 			},
-			input: `{
+			inputBody: `{
 				"address": {
 				  "city": "SP",
 				  "country": "BR",
@@ -50,9 +50,16 @@ func TestCreateUser(t *testing.T) {
 		{
 			name:             "invalid user data",
 			setupMock:        func(service *MockUserService) {},
-			input:            ``,
+			inputBody:        ``,
 			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message":"Invalid User Data","code":"INVALID_USER_DATA"}`,
+		},
+		{
+			name:             "email required",
+			setupMock:        func(service *MockUserService) {},
+			inputBody:        `{}`,
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: `{"message":"Email Required","code":"EMAIL_REQUIRED"}`,
 		},
 		{
 			name: "user already exists",
@@ -62,7 +69,7 @@ func TestCreateUser(t *testing.T) {
 					CreateUser(gomock.Any()).
 					Return("", &userServiceError{code: USER_EXISTS})
 			},
-			input:            `{"email": "test@test.com"}`,
+			inputBody:        `{"email": "test@test.com"}`,
 			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message":"User Already Exists","code":"USER_ALREADY_EXISTS"}`,
 		},
@@ -74,7 +81,7 @@ func TestCreateUser(t *testing.T) {
 					CreateUser(gomock.Any()).
 					Return("", &userServiceError{code: CREATE_USER_FAILED})
 			},
-			input:            `{"email": "test@test.com"}`,
+			inputBody:        `{"email": "test@test.com"}`,
 			expectedStatus:   http.StatusBadGateway,
 			expectedResponse: `{"message":"User Create Failed","code":"USER_CREATE_FAILED"}`,
 		},
@@ -91,7 +98,7 @@ func TestCreateUser(t *testing.T) {
 			r := gin.Default()
 			r.POST("/api/v1/users", controller.CreateUser)
 
-			req, err := http.NewRequest(http.MethodPost, "/api/v1/users", strings.NewReader(tc.input))
+			req, err := http.NewRequest(http.MethodPost, "/api/v1/users", strings.NewReader(tc.inputBody))
 			if err != nil {
 				t.Errorf("Error in request : %v", err)
 			}
@@ -130,7 +137,7 @@ func TestGetUser(t *testing.T) {
 	tests := []struct {
 		name             string
 		setupMock        func(service *MockUserService)
-		input            string
+		inputParam       string
 		expectedResponse string
 		expectedStatus   int
 	}{
@@ -142,7 +149,7 @@ func TestGetUser(t *testing.T) {
 					GetUser(gomock.Any()).
 					Return(&user, nil)
 			},
-			input:            userID,
+			inputParam:       userID,
 			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"id":"","name":"Test","age":"33","email":"test@test.com","password":"12345","address":{"street":"Rua hum","number":"111","zip":"12345-678","city":"SP","state":"SP","country":"BR"}}`,
 		},
@@ -154,7 +161,7 @@ func TestGetUser(t *testing.T) {
 					GetUser(gomock.Any()).
 					Return(nil, &userServiceError{code: USER_ID_INVALID})
 			},
-			input:            `gdfhdhgh`,
+			inputParam:       `gdfhdhgh`,
 			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message":"Invalid User ID","code":"INVALID_USER_ID"}`,
 		},
@@ -166,7 +173,7 @@ func TestGetUser(t *testing.T) {
 					GetUser(gomock.Any()).
 					Return(nil, &userServiceError{code: USER_NOT_EXISTS})
 			},
-			input:            userID,
+			inputParam:       userID,
 			expectedStatus:   http.StatusNotFound,
 			expectedResponse: `{"message":"User Not Found","code":"USER_NOT_FOUND"}`,
 		},
@@ -178,7 +185,7 @@ func TestGetUser(t *testing.T) {
 					GetUser(gomock.Any()).
 					Return(nil, &userServiceError{code: GET_USER_FAILED})
 			},
-			input:            userID,
+			inputParam:       userID,
 			expectedStatus:   http.StatusBadGateway,
 			expectedResponse: `{"message":"User Find Failed","code":"USER_FIND_FAILED"}`,
 		},
@@ -196,7 +203,7 @@ func TestGetUser(t *testing.T) {
 			r := gin.Default()
 			r.GET("/api/v1/users/:id", controller.GetUser)
 
-			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/users/%s", tc.input), nil)
+			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/users/%s", tc.inputParam), nil)
 			if err != nil {
 				t.Errorf("Error in request : %v", err)
 			}
@@ -221,7 +228,8 @@ func TestUpdateUser(t *testing.T) {
 	tests := []struct {
 		name             string
 		setupMock        func(service *MockUserService)
-		input            string
+		inputBody        string
+		inputParam       string
 		expectedResponse string
 		expectedStatus   int
 	}{
@@ -233,53 +241,57 @@ func TestUpdateUser(t *testing.T) {
 					UpdateUser(gomock.Any(), gomock.Any()).
 					Return(nil)
 			},
-			input: `{
-				"address": {
-				  "city": "SP",
-				  "country": "BR",
-				  "number": "111",
-				  "state": "SP",
-				  "street": "Rua hum",
-				  "zip": "12345-678"
-				},
+			inputBody: `{
 				"age": "33",
 				"email": "test@test.com",
-				"name": "Test",
+				"name": "Test"
 			  }`,
+			inputParam:       userID,
 			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"message":"User Updated","code":"USER_UPDATED"}`,
 		},
-		// {
-		// 	name:             "invalid user data",
-		// 	setupMock:        func(service *MockUserService) {},
-		// 	input:            ``,
-		// 	expectedStatus:   http.StatusBadRequest,
-		// 	expectedResponse: `{"message":"Invalid User Data","code":"USER_UPDATED"}`,
-		// },
-		// {
-		// 	name: "user already exists",
-		// 	setupMock: func(service *MockUserService) {
-		// 		service.
-		// 			EXPECT().
-		// 			CreateUser(gomock.Any()).
-		// 			Return("", &userServiceError{code: USER_EXISTS})
-		// 	},
-		// 	input:            `{"email": "test@test.com"}`,
-		// 	expectedStatus:   http.StatusBadRequest,
-		// 	expectedResponse: `{"message":"User Already Exists","code":"USER_ALREADY_EXISTS"}`,
-		// },
-		// {
-		// 	name: "user create failed",
-		// 	setupMock: func(service *MockUserService) {
-		// 		service.
-		// 			EXPECT().
-		// 			CreateUser(gomock.Any()).
-		// 			Return("", &userServiceError{code: CREATE_USER_FAILED})
-		// 	},
-		// 	input:            `{"email": "test@test.com"}`,
-		// 	expectedStatus:   http.StatusBadGateway,
-		// 	expectedResponse: `{"message":"User Create Failed","code":"USER_CREATE_FAILED"}`,
-		// },
+		{
+			name:             "invalid user data",
+			setupMock:        func(service *MockUserService) {},
+			inputBody:        ``,
+			inputParam:       userID,
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: `{"message":"Invalid User Data","code":"INVALID_USER_DATA"}`,
+		},
+		{
+			name: "invalid user id",
+			setupMock: func(service *MockUserService) {
+				service.
+					EXPECT().
+					UpdateUser(gomock.Any(), gomock.Any()).
+					Return(&userServiceError{code: USER_ID_INVALID})
+			},
+			inputBody: `{
+				"age": "33",
+				"email": "test@test.com",
+				"name": "Test"
+			  }`,
+			inputParam:       `gdfhdhgh`,
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: `{"message":"Invalid User ID","code":"INVALID_USER_ID"}`,
+		},
+		{
+			name: "user update failed",
+			setupMock: func(service *MockUserService) {
+				service.
+					EXPECT().
+					UpdateUser(gomock.Any(), gomock.Any()).
+					Return(&userServiceError{code: UPDATE_USER_FAILED})
+			},
+			inputBody: `{
+				"age": "33",
+				"email": "test@test.com",
+				"name": "Test"
+			  }`,
+			inputParam:       userID,
+			expectedStatus:   http.StatusBadGateway,
+			expectedResponse: `{"message":"User Update Failed","code":"USER_UPDATE_FAILED"}`,
+		},
 	}
 
 	for _, tc := range tests {
@@ -293,7 +305,84 @@ func TestUpdateUser(t *testing.T) {
 			r := gin.Default()
 			r.PUT("/api/v1/users/:id", controller.UpdateUser)
 
-			req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/users/%s", userID), strings.NewReader(tc.input))
+			req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/users/%s", tc.inputParam), strings.NewReader(tc.inputBody))
+			if err != nil {
+				t.Errorf("Error in request : %v", err)
+			}
+			r.ServeHTTP(w, req)
+
+			if w.Result().StatusCode != tc.expectedStatus {
+				t.Errorf("Expecting statusCode %d , but returns %d", tc.expectedStatus, w.Result().StatusCode)
+			}
+
+			if r := w.Body.String(); r != tc.expectedResponse {
+				t.Errorf("Expecting body %s , but returns %s", tc.expectedResponse, r)
+			}
+		})
+	}
+}
+
+func TestDeleteUser(t *testing.T) {
+
+	const userID string = "64260e1da4c0c814bda5734a"
+
+	tests := []struct {
+		name             string
+		setupMock        func(service *MockUserService)
+		inputParam       string
+		expectedResponse string
+		expectedStatus   int
+	}{
+		{
+			name: "update user success",
+			setupMock: func(service *MockUserService) {
+				service.
+					EXPECT().
+					DeleteUser(gomock.Any()).
+					Return(nil)
+			},
+			inputParam:       userID,
+			expectedStatus:   http.StatusOK,
+			expectedResponse: `{"message":"User Deleted","code":"USER_DELETED"}`,
+		},
+		{
+			name: "invalid user id",
+			setupMock: func(service *MockUserService) {
+				service.
+					EXPECT().
+					DeleteUser(gomock.Any()).
+					Return(&userServiceError{code: USER_ID_INVALID})
+			},
+			inputParam:       `gdfhdhgh`,
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: `{"message":"Invalid User ID","code":"INVALID_USER_ID"}`,
+		},
+		{
+			name: "user delete failed",
+			setupMock: func(service *MockUserService) {
+				service.
+					EXPECT().
+					DeleteUser(gomock.Any()).
+					Return(&userServiceError{code: DELETE_USER_FAILED})
+			},
+			inputParam:       userID,
+			expectedStatus:   http.StatusBadGateway,
+			expectedResponse: `{"message":"User Delete Failed","code":"USER_DELETE_FAILED"}`,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(tu *testing.T) {
+			w := httptest.NewRecorder()
+			ctrl := gomock.NewController(tu)
+			svc := NewMockUserService(ctrl)
+			tc.setupMock(svc)
+
+			controller := NewUserController(svc)
+			r := gin.Default()
+			r.DELETE("/api/v1/users/:id", controller.DeleteUser)
+
+			req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/users/%s", tc.inputParam), nil)
 			if err != nil {
 				t.Errorf("Error in request : %v", err)
 			}

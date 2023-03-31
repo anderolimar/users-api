@@ -47,9 +47,6 @@ info:
   contact:
     name: Anderson
   description: This is a User REST API to perform CRUD operations in MongoDB.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: User API
   version: "1.0"
 paths:

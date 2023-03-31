@@ -29,7 +29,6 @@ func NewUserController(service UserService) UserController {
 //	@Success		201		{object}	UserID
 //	@Failure		401
 //	@Failure		400		{object}	UserResponse
-//	@Failure		400		{object}	UserResponse
 //	@Failure		502		{object}	UserResponse
 //	@Router			/users [post]
 func (ctr UserController) CreateUser(c *gin.Context) {
@@ -38,6 +37,12 @@ func (ctr UserController) CreateUser(c *gin.Context) {
 	err := json.NewDecoder(c.Request.Body).Decode(&user)
 	if err != nil {
 		c.JSON(400, INVALID_USER_DATA)
+		return
+	}
+
+	validation := ValidateUser(user)
+	if validation != nil {
+		c.JSON(400, validation)
 		return
 	}
 
@@ -66,7 +71,6 @@ func (ctr UserController) CreateUser(c *gin.Context) {
 //	@Param			id		path		string	true	"userID"
 //	@Success		201		{object}	UserID
 //	@Failure		401
-//	@Failure		400		{object}	UserResponse
 //	@Failure		400		{object}	UserResponse
 //	@Failure		502		{object}	UserResponse
 //	@Router			/users/{id} [get]
@@ -103,7 +107,6 @@ func (ctr UserController) GetUser(c *gin.Context) {
 //	@Success		200	{object}	UserResponse
 //	@Failure		401
 //	@Failure		400	{object}	UserResponse
-//	@Failure		400	{object}	UserResponse
 //	@Failure		502	{object}	UserResponse
 //	@Router			/users/{id} [put]
 func (ctr UserController) UpdateUser(c *gin.Context) {
@@ -112,16 +115,15 @@ func (ctr UserController) UpdateUser(c *gin.Context) {
 
 	err := json.NewDecoder(c.Request.Body).Decode(&user)
 	if err != nil {
-		if err.Error() == USER_ID_INVALID {
-			c.JSON(400, INVALID_USER_ID)
-			return
-		}
-
 		c.JSON(400, INVALID_USER_DATA)
 		return
 	}
 
 	if err := ctr.service.UpdateUser(userID, user); err != nil {
+		if err.Error() == USER_ID_INVALID {
+			c.JSON(400, INVALID_USER_ID)
+			return
+		}
 		c.JSON(502, USER_UPDATE_FAILED)
 		return
 	}
@@ -145,13 +147,12 @@ func (ctr UserController) UpdateUser(c *gin.Context) {
 func (ctr UserController) DeleteUser(c *gin.Context) {
 	var userID string = c.Param("id")
 
-	if userID == "" {
-		c.JSON(400, INVALID_USER_ID)
-		return
-	}
-
 	err := ctr.service.DeleteUser(userID)
 	if err != nil {
+		if err.Error() == USER_ID_INVALID {
+			c.JSON(400, INVALID_USER_ID)
+			return
+		}
 		c.JSON(502, USER_DELETE_FAILED)
 		return
 	}

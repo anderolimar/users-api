@@ -16,6 +16,9 @@ envup:
 envdown: 
 	docker-compose down
 
+test: 
+	go test ./...
+
 attack:
 	vegeta attack -duration=10s -rate=100 -targets=target.conf | vegeta report	
 

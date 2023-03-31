@@ -46,7 +46,7 @@ var USER_UPDATED UserResponse = UserResponse{
 }
 
 var USER_UPDATE_FAILED UserResponse = UserResponse{
-	Message: "User Failed",
+	Message: "User Update Failed",
 	Code:    "USER_UPDATE_FAILED",
 }
 
